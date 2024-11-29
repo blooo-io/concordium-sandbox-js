@@ -1,0 +1,26 @@
+{
+  "name": "tutorial-web-hid-nano-s",
+  "version": "1.0.0",
+  "description": "",
+  "source": "index.html",
+  "scripts": {
+    "start": "parcel"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.13.2",
+    "process": "^0.11.10"
+  },
+  "dependencies": {
+    "@concordium/common-sdk": "^9.5.3",
+    "@concordium/web-sdk": "^8.1.0",
+    "@ledgerhq/hw-transport-webhid": "^6.29.4",
+    "@ledgerhq/logs": "^6.12.0",
+    "@noble/ed25519": "^2.1.0"
+  },
+  "alias": {
+    "@ledgerhq/devices": "@ledgerhq/devices/lib-es",
+    "@ledgerhq/hw-app-concordium": "../hw-app-concordium/lib-es/Concordium"
+  }
+}
