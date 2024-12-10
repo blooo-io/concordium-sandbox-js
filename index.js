@@ -1,5 +1,5 @@
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
-import Concordium from "@ledgerhq/hw-app-concordium";
+import Concordium, { ExportType, Mode } from "@ledgerhq/hw-app-concordium";
 import { listen } from "@ledgerhq/logs";
 import { AccountAddress, AccountTransactionType, CcdAmount, SequenceNumber } from "@concordium/web-sdk";
 import { verifyAsync } from "@noble/ed25519";
@@ -30,6 +30,17 @@ const getTransport = async () => {
 const getPublicKey = async () => {
   const result = await ccd.getPublicKey("44/919/0/0/0/0", true, true);
   return result.publicKey;
+};
+
+const exportPrivateKey = async () => {
+  const data = {
+    identity: 12,
+    identityProvider: 34
+  }
+
+  const result = await ccd.exportPrivateKey(data, ExportType.PRF_KEY_SEED, Mode.EXPORT_CRED_ID, false);
+  console.log(result);
+  return result.privateKey;
 };
 
 const verifyAddress = async () => {
@@ -548,4 +559,9 @@ document.getElementById("credential-deployment").onclick = async function () {
   //Building transaction
   const signature = await signCredentialDeployment();
   document.getElementById("credential-deployment-input").value = signature;
+};
+
+document.getElementById("export-private-key").onclick = async function () {
+  const privateKey = await exportPrivateKey();
+  document.getElementById("private-key-input").value = privateKey;
 };
