@@ -1,8 +1,11 @@
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
+// import Concordium from "@blooo/hw-app-concordium";
 import Concordium, { ExportType, Mode } from "@ledgerhq/hw-app-concordium";
+
 import { listen } from "@ledgerhq/logs";
 import { AccountAddress, AccountTransactionType, CcdAmount, SequenceNumber } from "@concordium/web-sdk";
 import { verifyAsync } from "@noble/ed25519";
+import { ExportType, Mode } from "@blooo/hw-app-concordium/lib/type";
 
 listen((log) => console.log(log));
 
@@ -23,32 +26,40 @@ let nonce = SequenceNumber.create(10);
 const getTransport = async () => {
   transport = await TransportWebHID.create();
   ccd = new Concordium(transport);
-  // const result = await ccd.getVersion();
-  // return result.version;
 };
 
 const getPublicKey = async () => {
   const result = await ccd.getPublicKey("44/919/0/0/0/0", true, true);
+  console.log("result: ",result);
+  
   return result.publicKey;
 };
 
-const exportPrivateKey = async () => {
+const exportPrivateKeyLegacy = async () => {
+  const data = {
+    identity: 12
+  }
+  const result = await ccd.exportPrivateKeyLegacy(data, ExportType.PRF_KEY_SEED, Mode.EXPORT_CRED_ID);
+  console.log(result);
+  return result.privateKey;
+};
+
+const exportPrivateKeyNew = async () => {
   const data = {
     identity: 12,
     identityProvider: 34
   }
-
-  const result = await ccd.exportPrivateKey(data, ExportType.PRF_KEY_SEED, Mode.EXPORT_CRED_ID, false);
+  const result = await ccd.exportPrivateKeyNew(data, ExportType.PRF_KEY_SEED, Mode.EXPORT_CRED_ID);
   console.log(result);
   return result.privateKey;
 };
 
 const verifyAddress = async () => {
-  const result = await ccd.verifyAddress(0, 0, 0);
+  const result = await ccd.verifyAddress(false, 0, 0, 0);
   return result.status;
 };
 const verifyAddressLegacy = async () => {
-  const result = await ccd.verifyAddressLegacy(0, 0);
+  const result = await ccd.verifyAddress(true, 0, 0);
   return result.status;
 };
 
@@ -108,20 +119,6 @@ const signTransferWithSchedule = async () => {
     toAddress: recipient,
     schedule: [
       { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
-      { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" }, { timestamp: "123456", amount: "999" },
     ],
   };
 
@@ -168,6 +165,7 @@ const signTransferWithScheduleMemo = async () => {
 const signTransferToPublic = async () => {
 
   const transferToPublic = {
+    recipient: recipient,
     remainingAmount: "AF1E9793F4B5E6A83949C75668AAB1AE8780C813633979FDED1585909325FBC0B7D7E1A80FB8F4C2041B3EEB9B117ED88CC79006BC1ADE01B2A0BA6466C07C8B30D7421B019D5DB6D03FDC0487579FBE8DB4BF3F002FDF2D73FF10AC0F1A07AA93D0813AA53E04532746A4E81A0A03904D11D3A66B1E358504724788C57E9156579B28F9F5A6F828B080B9E70294FF8790AA2163787E230FEACA2B20FDB312C482CAF575FBEC760F39B5F1A6EE9F0A71C5BB0FBE3CD3334834746858F16CC200",
     transferAmount: CcdAmount.fromMicroCcd("999"),
     index: '1234',
@@ -182,12 +180,8 @@ const signTransferToPublic = async () => {
     transactionKind: AccountTransactionType.TransferToPublic,
     payload: transferToPublic,
   };
-
-  const { publicKey } = await ccd.getPublicKey("44/919/0/0/0/0", false, true);
-  const { transaction, signature } = await ccd.signTransferToPublic(tx, "44/919/0/0/0/0");
-
-  const isValid = await verifySignature(signature, transaction, publicKey);
-  return isValid;
+  const { signature } = await ccd.signTransferToPublic(tx, "44/919/0/0/0/0");
+  return signature;
 };
 
 const signRegisterData = async () => {
@@ -253,6 +247,7 @@ const signConfigureBaker = async () => {
     transactionFeeCommission: 10,
     bakingRewardCommission: 10,
     finalizationRewardCommission: 10,
+    suspended: true
   };
 
   const tx = {
@@ -420,7 +415,6 @@ const signUpdateCredential = async () => {
 
 const signCredentialDeployment = async () => {
 
-
   const credentialValues = {
     credId: "85d8a7aa296c162e4e2f0d6bfbdc562db240e28942f7f3ddef6979a1133b5c719ec3581869aaf88388824b0f6755e63c",
     ipIdentity: 1234,
@@ -451,6 +445,31 @@ const signCredentialDeployment = async () => {
   };
 
   const { signature } = await ccd.signCredentialDeployment(credentialValues, true, BigInt(1234), "44/919/0/0/0/0");
+
+  return signature;
+};
+
+const publicInfoForIp = async () => {
+
+  const transactionPublicInfoForIp = {
+    idCredPub: "85d8a7aa296c162e4e2f0d6bfbdc562db240e28942f7f3ddef6979a1133b5c719ec3581869aaf88388824b0f6755e63c",
+    regId: "85d8a7aa296c162e4e2f0d6bfbdc562db240e28942f7f3ddef6979a1133b5c719ec3581869aaf88388824b0f6755e63c",
+    publicKeys: {
+      keys: {
+        1: {
+          schemeId: "Ed25519",
+          verifyKey: "f78929ec8a9819f6ae2e10e79522b6b311949635fecc3d924d9d1e23f8e9e1c3"
+        },
+        2: {
+          schemeId: "Ed25519",
+          verifyKey: "f78929ec8a9819f6ae2e10e79522b6b311949635fecc3d924d9d1e23f8e9e1c3"
+        }
+      },
+      threshold: 12
+    }
+  };
+
+  const { signature } = await ccd.signPublicInfoForIp(transactionPublicInfoForIp, "44/919/0/0/0/0");
 
   return signature;
 };
@@ -562,6 +581,15 @@ document.getElementById("credential-deployment").onclick = async function () {
 };
 
 document.getElementById("export-private-key").onclick = async function () {
-  const privateKey = await exportPrivateKey();
+  const privateKey = await exportPrivateKeyLegacy();
   document.getElementById("private-key-input").value = privateKey;
+};
+document.getElementById("export-private-key-new").onclick = async function () {
+  const privateKey = await exportPrivateKeyNew();
+  document.getElementById("private-key-new-input").value = privateKey;
+};
+
+document.getElementById("public-info-for-ip").onclick = async function () {
+  const publicInfo = await publicInfoForIp();
+  document.getElementById("public-info-for-ip-input").value = publicInfo;
 };
