@@ -1,11 +1,14 @@
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 // import Concordium from "@blooo/hw-app-concordium";
-import Concordium, { ExportType, Mode } from "@ledgerhq/hw-app-concordium";
+import Concordium from "@ledgerhq/hw-app-concordium/Concordium";
+import { ExportType, Mode } from "@ledgerhq/hw-app-concordium/type";
+
+// import { ExportType, Mode } from "@ledgerhq/hw-app-concordium/../type";
 
 import { listen } from "@ledgerhq/logs";
-import { AccountAddress, AccountTransactionType, CcdAmount, SequenceNumber } from "@concordium/web-sdk";
+import { AccountAddress, AccountTransactionType, CcdAmount, SequenceNumber, TokenId } from "@concordium/web-sdk";
 import { verifyAsync } from "@noble/ed25519";
-import { ExportType, Mode } from "@blooo/hw-app-concordium/lib/type";
+// import { ExportType, Mode } from "@blooo/hw-app-concordium/lib/type";
 
 listen((log) => console.log(log));
 
@@ -26,6 +29,7 @@ let nonce = SequenceNumber.create(10);
 const getTransport = async () => {
   transport = await TransportWebHID.create();
   ccd = new Concordium(transport);
+
 };
 
 const getPublicKey = async () => {
@@ -37,7 +41,8 @@ const getPublicKey = async () => {
 
 const exportPrivateKeyLegacy = async () => {
   const data = {
-    identity: 12
+    identity: 12,
+    identityProvider: 34
   }
   const result = await ccd.exportPrivateKeyLegacy(data, ExportType.PRF_KEY_SEED, Mode.EXPORT_CRED_ID);
   console.log(result);
@@ -45,11 +50,12 @@ const exportPrivateKeyLegacy = async () => {
 };
 
 const exportPrivateKeyNew = async () => {
-  const data = {
-    identity: 12,
-    identityProvider: 34
-  }
-  const result = await ccd.exportPrivateKeyNew(data, ExportType.PRF_KEY_SEED, Mode.EXPORT_CRED_ID);
+  // According to the TypeScript definition, exportPrivateKeyNew takes:
+  // exportType: ExportTypeNew, identityIndex: number, idpIndex: number, accountIndex?: number
+  const identityIndex = 12;
+  const idpIndex = 34;
+  const accountIndex = 0;
+  const result = await ccd.exportPrivateKeyNew("account_creation", identityIndex, idpIndex, accountIndex);
   console.log(result);
   return result.privateKey;
 };
@@ -474,6 +480,38 @@ const publicInfoForIp = async () => {
   return signature;
 };
 
+const signPLT = async () => {
+  try {
+    // Check if signPLT exists
+    if (typeof ccd.signPLT !== 'function') {
+      console.error("Available methods on ccd:", Object.getOwnPropertyNames(Object.getPrototypeOf(ccd)));
+      throw new Error(`signPLT method is not available. Available methods: ${Object.getOwnPropertyNames(Object.getPrototypeOf(ccd)).join(', ')}`);
+    }
+    
+    const path = "1105'/0'/0'/0/0/0/0/";
+    
+    // PLT Transaction object - matches IPLTTransaction interface
+    const tx = {
+      sender,
+      nonce: nonce.toString(),
+      expiry: BigInt(123456),
+      energyAmount: '1234',
+      transactionKind: AccountTransactionType.TokenUpdate,
+      payload: {
+        tokenId: "PLT Token",
+        operations: "81A1687472616E73666572A266616D6F756E74C482211904C769726563697069656E74D99D73A201D99D71A10119039703582020A845815BD43A1999E90FBF971537A70392EB38F89E6BD32B3DD70E1A9551D7"
+      }
+    };
+    
+    // New signature: signPLT(txn: IPLTTransaction, path: string)
+    const result = await ccd.signPLT(tx, path);
+    console.log("PLT signature result:", result);
+    return result.signature;
+  } catch (error) {
+    console.error("Error signing PLT:", error);
+    throw error;
+  }
+};
 
 //======================================================================================================================
 
@@ -592,4 +630,14 @@ document.getElementById("export-private-key-new").onclick = async function () {
 document.getElementById("public-info-for-ip").onclick = async function () {
   const publicInfo = await publicInfoForIp();
   document.getElementById("public-info-for-ip-input").value = publicInfo;
+};
+
+document.getElementById("sign-plt").onclick = async function () {
+  try {
+    const signature = await signPLT();
+    document.getElementById("sign-plt-input").value = signature;
+  } catch (error) {
+    console.error("Error in PLT signing:", error);
+    document.getElementById("sign-plt-input").value = "Error: " + error.message;
+  }
 };
