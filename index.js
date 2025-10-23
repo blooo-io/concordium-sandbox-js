@@ -1,10 +1,12 @@
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 // import Concordium from "@blooo/hw-app-concordium";
-import Concordium from "@ledgerhq/hw-app-concordium";
-import { ExportType, Mode } from "@ledgerhq/hw-app-concordium/../type";
+import Concordium from "@ledgerhq/hw-app-concordium/Concordium";
+import { ExportType, Mode } from "@ledgerhq/hw-app-concordium/type";
+
+// import { ExportType, Mode } from "@ledgerhq/hw-app-concordium/../type";
 
 import { listen } from "@ledgerhq/logs";
-import { AccountAddress, AccountTransactionType, CcdAmount, SequenceNumber } from "@concordium/web-sdk";
+import { AccountAddress, AccountTransactionType, CcdAmount, SequenceNumber, TokenId } from "@concordium/web-sdk";
 import { verifyAsync } from "@noble/ed25519";
 // import { ExportType, Mode } from "@blooo/hw-app-concordium/lib/type";
 
@@ -496,7 +498,7 @@ const signPLT = async () => {
       energyAmount: '1234',
       transactionKind: AccountTransactionType.TokenUpdate,
       payload: {
-        tokenName: "PLT Token",
+        tokenId: "PLT Token",
         operations: "81A1687472616E73666572A266616D6F756E74C482211904C769726563697069656E74D99D73A201D99D71A10119039703582020A845815BD43A1999E90FBF971537A70392EB38F89E6BD32B3DD70E1A9551D7"
       }
     };

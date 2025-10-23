@@ -19,10 +19,24 @@
     "@concordium/web-sdk": "^10.0.2",
     "@ledgerhq/hw-transport-webhid": "^6.29.4",
     "@ledgerhq/logs": "^6.12.0",
-    "@noble/ed25519": "^2.1.0"
+    "@noble/ed25519": "^2.1.0",
+    "cbor2": "^1.12.0"
   },
   "alias": {
     "@ledgerhq/devices": "@ledgerhq/devices/lib-es",
-    "@ledgerhq/hw-app-concordium": "../hw-app-concordium/lib-es/Concordium"
+    "@ledgerhq/hw-app-concordium": "../hw-app-concordium/lib-es",
+    "@concordium/web-sdk/shims/ed25519": "../hw-app-concordium/node_modules/@concordium/web-sdk/lib/esm/shims/ed25519/default.js",
+    "@concordium/rust-bindings/wallet": "../hw-app-concordium/node_modules/@concordium/rust-bindings/lib/wallet/web/esm",
+    "cbor2": "./node_modules/cbor2/lib/index.js",
+    "cbor2/encoder": "./node_modules/cbor2/lib/encoder.js",
+    "cbor2/decoder": "./node_modules/cbor2/lib/decoder.js",
+    "cbor2/tag": "./node_modules/cbor2/lib/tag.js",
+    "cbor2/comment": "./node_modules/cbor2/lib/comment.js",
+    "cbor2/diagnostic": "./node_modules/cbor2/lib/diagnostic.js",
+    "cbor2/simple": "./node_modules/cbor2/lib/simple.js",
+    "cbor2/sorts": "./node_modules/cbor2/lib/sorts.js",
+    "cbor2/types": "./node_modules/cbor2/lib/types.js",
+    "cbor2/utils": "./node_modules/cbor2/lib/utils.js",
+    "cbor2/writer": "./node_modules/cbor2/lib/writer.js"
   }
 }
