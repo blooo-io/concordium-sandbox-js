@@ -1,1 +1,7 @@
-# stellar-prep
+# Concordium Sandbox
+
+## How to start
+`
+npm install
+npm run start
+`
