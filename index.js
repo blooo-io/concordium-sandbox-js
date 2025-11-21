@@ -1,14 +1,10 @@
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
-// import Concordium from "@blooo/hw-app-concordium";
-import Concordium from "@ledgerhq/hw-app-concordium/Concordium";
-import { ExportType, Mode } from "@ledgerhq/hw-app-concordium/type";
-
-// import { ExportType, Mode } from "@ledgerhq/hw-app-concordium/../type";
+import Concordium from "@blooo/hw-app-concordium";
+import { ExportType, Mode } from "@blooo/hw-app-concordium/lib/type";
 
 import { listen } from "@ledgerhq/logs";
 import { AccountAddress, AccountTransactionType, CcdAmount, SequenceNumber, TokenId } from "@concordium/web-sdk";
 import { verifyAsync } from "@noble/ed25519";
-// import { ExportType, Mode } from "@blooo/hw-app-concordium/lib/type";
 
 listen((log) => console.log(log));
 

@@ -29,38 +29,6 @@ Before you begin, ensure you have the following installed:
   - WebHID is not supported in Firefox or Safari
 - **Hardware**: Ledger device with the Concordium app installed (official or sideloaded)
 
-### Important: hw-app-concordium Dependency
-
-This project requires the `hw-app-concordium` package to be available in a sibling directory. The package must be located at:
-
-```
-../hw-app-concordium
-```
-
-To set up the dependency, clone and build the repository:
-
-```bash
-# Navigate to the parent directory
-cd ..
-
-# Clone the hw-app-concordium repository
-git clone https://github.com/blooo-io/hw-app-concordium.git
-
-# Navigate into the cloned repository
-cd hw-app-concordium
-
-# Install dependencies
-npm install
-
-# Build the package
-npm run build
-
-# Return to the project directory
-cd ../concordium-sandbox-js
-```
-
-Make sure this directory exists and is built before installing dependencies. The project uses path aliases in `package.json` to reference this local dependency.
-
 ## Installation
 
 1. **Clone or navigate to the project directory**:
@@ -68,14 +36,7 @@ Make sure this directory exists and is built before installing dependencies. The
    cd concordium-sandbox-js
    ```
 
-2. **Ensure the hw-app-concordium dependency is available and built**:
-   ```bash
-   # Verify the sibling directory exists and is built
-   ls ../hw-app-concordium
-   ls ../hw-app-concordium/lib-es  # Should exist after building
-   ```
-
-3. **Install dependencies**:
+2. **Install dependencies**:
    ```bash
    npm install
    ```
@@ -132,10 +93,6 @@ Once the application is running and your Ledger is connected:
 
 ### Build/Dependency Issues
 
-- **Module not found errors for hw-app-concordium**:
-  - Verify that `../hw-app-concordium` directory exists
-  - Ensure the package is properly built in that directory
-  - Check that the path aliases in `package.json` are correct
 
 - **Parcel build errors**:
   - Clear the Parcel cache: `rm -rf .parcel-cache`
